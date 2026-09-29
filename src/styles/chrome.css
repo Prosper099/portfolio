@@ -1,0 +1,211 @@
+/* ============================================================
+   CHROME — character layer, speech, transition, navigation
+   ============================================================ */
+
+.stage {
+  --actor-h: clamp(74px, 11.5vh, 116px);
+  --actor-w: calc(var(--actor-h) * 0.6022);
+  --ease-editorial: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* ---------- the character lives above everything ---------- */
+.actor {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+}
+.actor__scale {
+  position: absolute;
+  inset: 0;
+}
+.actor__box {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--actor-w);
+  height: var(--actor-h);
+  will-change: transform;
+}
+.actor__box svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ---------- speech ---------- */
+.bubbles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.bubble {
+  position: absolute;
+  left: 0;
+  top: 0;
+  max-width: min(60vw, 230px);
+  padding: 9px 13px 10px;
+  background: var(--panel);
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-variation-settings: 'wght' 420, 'opsz' 20, 'SOFT' 30;
+  font-size: clamp(12px, 1.05vw, 14.5px);
+  line-height: 1.28;
+  letter-spacing: -0.005em;
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--ink) 92%, transparent);
+  transition: opacity 260ms var(--ease-editorial);
+  will-change: transform;
+  z-index: 2;
+}
+.bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 14px;
+  width: 10px;
+  height: 10px;
+  background: var(--panel);
+  border-right: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  transform: rotate(45deg) skew(6deg, 6deg);
+}
+.bubble__caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 1px;
+  background: var(--accent);
+  transform: translateY(0.14em);
+  opacity: 0;
+}
+.bubble[data-state='typing'] .bubble__caret {
+  opacity: 1;
+  animation: blink 900ms steps(2, end) infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ---------- transition ---------- */
+.wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  background: var(--paper);
+  transition: clip-path 720ms var(--ease-in-out);
+}
+.stage[data-theme='dark'] .wipe {
+  background: #0e0e11;
+}
+
+/* ---------- chapter rail ---------- */
+.rail {
+  position: absolute;
+  left: var(--gut);
+  bottom: calc(var(--gut) * 0.62);
+  z-index: 85;
+  mix-blend-mode: normal;
+}
+.rail__list {
+  display: flex;
+  gap: clamp(10px, 1.4vw, 20px);
+}
+.rail__item button {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  color: var(--muted);
+  transition: color 260ms var(--ease-editorial);
+}
+.rail__item button:hover {
+  color: var(--ink);
+}
+.rail__n {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+}
+.rail__t {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    max-width 420ms var(--ease-out),
+    opacity 300ms var(--ease-out),
+    transform 420ms var(--ease-out);
+}
+.rail__item.is-active button {
+  color: var(--ink);
+}
+.rail__item.is-active .rail__t {
+  max-width: 12ch;
+  opacity: 1;
+  transform: none;
+}
+.rail__item.is-past .rail__n {
+  color: var(--ink);
+}
+
+/* ---------- pager ---------- */
+.pager {
+  position: absolute;
+  right: var(--gut);
+  bottom: calc(var(--gut) * 0.62);
+  z-index: 85;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pager__btn {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1;
+  transition:
+    background 220ms var(--ease-editorial),
+    color 220ms var(--ease-editorial),
+    border-color 220ms var(--ease-editorial);
+}
+.pager__btn:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.pager__btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+.pager__count {
+  min-width: 5.2ch;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .stage {
+    --actor-h: clamp(60px, 9vh, 84px);
+  }
+  .rail__t {
+    display: none;
+  }
+  .rail__list {
+    gap: 12px;
+  }
+  .bubble {
+    max-width: 58vw;
+    font-size: 12px;
+    padding: 7px 10px 8px;
+  }
+}
